@@ -34,6 +34,220 @@ yk : 신경망의 예측값
 
 tk : 정답 레이블
 
+# 이 함수는 의미 파악만 할 것!
+
+def numerical_gradient(f, x):
+
+  h = 1e-4
+
+  grad = np.zeros_like(x) # x와 shape이 같은 0으로 채워진 배열을 만든다.
+
+​
+
+  for idx in range(x.size):
+
+    # 각 x에 대한 편미분을 수행한다.
+
+    tmp_val = x[idx]
+
+​
+
+    # f(x+h) 계산
+
+    x[idx] = tmp_val + h # 목표로 하고 있는 x의 변화량을 구하기 위함
+
+    fxh1 = f(x) # 변화량을 준 (tmp_val+h) x에 대한 전방차분 구하기
+
+    
+
+    # f(x-h) 계산
+
+    x[idx] = tmp_val - h
+
+    fxh2 = f(x)
+
+​
+
+    grad[idx] = (fxh1 - fxh2) / 2*h # 미분 수행
+
+    x[idx] = tmp_val # 원래 값으로 복원 하기
+
+  
+
+  return grad
+
+x = np.array([3.0, 4.0])
+
+print("x = [3, 4] 일 때의 기울기 배열 : {}".format(numerical_gradient(function_2, x)))
+
+​
+
+x = np.array([1.0, 2.0])
+
+print("x = [1, 2] 일 때의 기울기 배열 : {}".format(numerical_gradient(function_2, x)))
+
+​
+
+x = np.array([1.0, 1.0])
+
+print("x = [1, 1] 일 때의 기울기 배열 : {}".format(numerical_gradient(function_2, x)))
+
+​
+
+x = np.array([0.3, 0.3])
+
+print("x = [0.3, 0.3] 일 때의 기울기 배열 : {}".format(numerical_gradient(function_2, x)))
+
+​
+
+x = np.array([0.01, 0.01])
+
+print("x = [0.01, 0.01] 일 때의 기울기 배열 : {}".format(numerical_gradient(function_2, x)))
+
+# coding: utf-8
+
+# cf.http://d.hatena.ne.jp/white_wheels/20100327/p3
+
+import numpy as np
+
+import matplotlib.pylab as plt
+
+from mpl_toolkits.mplot3d import Axes3D
+
+​
+
+​
+
+def _numerical_gradient_no_batch(f, x):
+
+    h = 1e-4 # 0.0001
+
+    grad = np.zeros_like(x) # x와 형상이 같은 배열을 생성
+
+    
+
+    for idx in range(x.size):
+
+        tmp_val = x[idx]
+
+        
+
+        # f(x+h) 계산
+
+        x[idx] = float(tmp_val) + h
+
+        fxh1 = f(x)
+
+        
+
+        # f(x-h) 계산
+
+        x[idx] = tmp_val - h 
+
+        fxh2 = f(x) 
+
+        
+
+        grad[idx] = (fxh1 - fxh2) / (2*h)
+
+        x[idx] = tmp_val # 값 복원
+
+        
+
+    return grad
+
+​
+
+​
+
+def numerical_gradient(f, X):
+
+    if X.ndim == 1:
+
+        return _numerical_gradient_no_batch(f, X)
+
+    else:
+
+        grad = np.zeros_like(X)
+
+        
+
+        for idx, x in enumerate(X):
+
+            grad[idx] = _numerical_gradient_no_batch(f, x)
+
+        
+
+        return grad
+
+​
+
+​
+
+def function_2(x):
+
+    if x.ndim == 1:
+
+        return np.sum(x**2)
+
+    else:
+
+        return np.sum(x**2, axis=1)
+
+​
+
+​
+
+def tangent_line(f, x):
+
+    d = numerical_gradient(f, x)
+
+    print(d)
+
+    y = f(x) - d*x
+
+    return lambda t: d*t + y
+
+     
+
+if __name__ == '__main__':
+
+    x0 = np.arange(-2, 2.5, 0.25)
+
+    x1 = np.arange(-2, 2.5, 0.25)
+
+    X, Y = np.meshgrid(x0, x1)
+
+    
+
+    X = X.flatten()
+
+    Y = Y.flatten()
+
+    
+
+    grad = numerical_gradient(function_2, np.array([X, Y]) )
+
+    
+
+    plt.figure()
+
+    plt.quiver(X, Y, -grad[0], -grad[1],  angles="xy",color="#666666")
+
+    plt.xlim([-2, 2])
+
+    plt.ylim([-2, 2])
+
+    plt.xlabel('x0')
+
+    plt.ylabel('x1')
+
+    plt.grid()
+
+    plt.draw()
+
+    plt.show()
+
 k : 출력층의 뉴런 개수
 
 강아지, 고양이, 말을 예측 하면 k는 3 - 클래스는 [0, 1, 2]
